@@ -1,29 +1,42 @@
 
 #' Multiple imputation marginalization (MIM)
 #' 
-#' @param strategy Strategy object
-#' @eval study_data_args(include_ipd = TRUE, include_ald = TRUE)
-#' @param ref_trt Reference treatment. String.
-#' @param comp_trt Comparator treatment. String.
+#' @param strategy An object of class `strategy` created by functions such as 
+#'   [strategy_maic()], [strategy_stc()], or [strategy_mim()]. 
+#'   Contains modelling details like the formula and family.
 #' @param ... Additional argument to pass to Stan model
 #' 
-#' @return Named list:
-#' \describe{
-#'    \item{mean_comp}{Comparator mean numeric value}
-#'    \item{mean_ref}{Reference mean numeric value}
-#'    \item{hats.v}{Point estimates for the variance in each synthesis}
-#'    \item{M}{Number of posterior prediction draws}
-#' }
-#' 
+#' @return A list containing:
+#' * `means`: A list containing vectors of posterior means (one per synthesis `M`):
+#'     * `A`: Comparator means.
+#'     * `C`: Reference means.
+#' * `model`: A list containing:
+#'     * `fit`: The first-stage [rstanarm::stan_glm()] object.
+#'     * `hats.v`: Vector of variance point estimates for each synthesis.
+#'     * `M`: Number of posterior prediction draws (syntheses).
+#'     * `rho`, `N`, `stan_args`: Strategy and model parameters.
+#'
 #' @importFrom rstanarm posterior_predict stan_glm
-#' @importFrom tibble tibble lst
+#' @importFrom stats glm coef vcov as.formula
 #' @keywords internal
 #' 
 calc_mim <- function(strategy,
-                     ipd, ald, 
-                     ref_trt,
-                     comp_trt, ...) {
+                     analysis_params,
+                     ...) {
+
+  default_stan_args <- list(
+    algorithm = "sampling",
+    chains = 2,
+    iter = 2000,
+    seed = 1234
+  )
   
+  stan_args <- modifyList(default_stan_args, list(...))
+  
+  ipd <- analysis_params$ipd
+  ald <- analysis_params$ald 
+  ref_trt <- analysis_params$ref_trt
+  comp_trt <- analysis_params$ipd_comp
   formula <- strategy$formula
   family <- strategy$family
   rho <- strategy$rho
@@ -32,14 +45,13 @@ calc_mim <- function(strategy,
   
   x_star <- simulate_ALD_pseudo_pop(formula, ipd, ald, trt_var, rho, N)
   
-  ## SYNTHESIS STAGE ##
+  # SYNTHESIS STAGE ---
   
   # first-stage logistic regression model fitted to index RCT using MCMC (Stan)
-  outcome.model <- stan_glm(
-    formula = formula,
-    data = ipd,
-    family = family,
-    algorithm = "sampling", ...)
+  outcome_model <- do.call(rstanarm::stan_glm, c(
+    list(formula = formula, data = ipd, family = family),
+    stan_args
+  ))
   
   # create augmented target dataset
   target.comp <- target.ref <- x_star
@@ -56,9 +68,9 @@ calc_mim <- function(strategy,
   # from their posterior predictive distribution
   y_star <-
     rstanarm::posterior_predict(
-      outcome.model, newdata = aug.target)
+      outcome_model, newdata = aug.target)
   
-  ## ANALYSIS STAGE ##
+  # ANALYSIS STAGE ---
   
   M <- nrow(y_star)
   
@@ -78,15 +90,24 @@ calc_mim <- function(strategy,
   
   ##TODO: how to transform this to the prob scale?
   # point estimates for the variance in each synthesis
-  hats.v <- unlist(lapply(reg2.fits,
-                          function(fit)
-                            vcov(fit)[treat_coef_name, treat_coef_name]))
+  hats.v <- unlist(lapply(reg2.fits, function(fit)
+    vcov(fit)[treat_coef_name, treat_coef_name]))
   
-  mean_ref <- family$linkinv(coef_fit[, 1])                  # probability for reference
+  mean_ref <- family$linkinv(coef_fit[, 1])     # probability for reference
   mean_comp <- family$linkinv(coef_fit[, 1] + coef_fit[, treat_coef_name])  # probability for comparator
   
-  tibble::lst(mean_comp, mean_ref,
-              hats.v, M)
+  list(
+    means = list(
+      A = mean_comp,
+      C = mean_ref),
+    model = list(
+      fit = outcome_model,
+      hats.v = hats.v,
+      M = M,
+      rho = rho,
+      N = N,
+      stan_args = stan_args)
+  )
 }
 
 #' Wald-type interval estimates

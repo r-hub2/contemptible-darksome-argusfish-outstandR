@@ -2,17 +2,28 @@
 % Please edit documentation in R/summary.R
 \name{summary.outstandR}
 \alias{summary.outstandR}
+\alias{print.summary.outstandR}
 \title{Summary method for outstandR}
 \usage{
-\method{summary}{outstandR}(object, ...)
+\method{summary}{outstandR}(object, CI = NA, ...)
+
+\method{print}{summary.outstandR}(x, digits = 3, ...)
 }
 \arguments{
-\item{object}{\code{\link[=outstandR]{outstandR()}} output object}
+\item{object}{\code{\link[=outstandR]{outstandR()}} output object.}
 
-\item{...}{Additional arguments}
+\item{CI}{Confidence interval level.}
+
+\item{...}{Additional arguments.}
+
+\item{x}{An object used to select a method.}
+
+\item{digits}{Minimal number of significant digits, see \code{print.default}.}
 }
 \value{
-No return value, called for side effects
+List of class \code{summary.outstandR}
+
+Original argument, but mainly called for side effects
 }
 \description{
 Summary method for outstandR

@@ -20,19 +20,19 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Depends: R (>= 4.1.0)
-Imports: boot, cli, copula, crayon, dplyr, glue, pillar, rlang,
-        rstanarm, stats, stringr, tibble, tidyr, tidyselect, Rdpack (>=
-        0.7)
-Suggests: causaldata, doSNOW, ggplot2, gridExtra, here, knitr,
-        maicplus, marginaleffects, MASS, parallel, purrr, reshape2,
-        rmarkdown, stdReg2, testthat (>= 3.0.0)
+Imports: boot, cli, copula, crayon, dplyr, ggplot2, glue, pillar,
+        purrr, rlang, rstanarm, stats, stringr, tibble, tidyr,
+        tidyselect, Rdpack (>= 0.7)
+Suggests: causaldata, doSNOW, gridExtra, here, knitr, maicplus,
+        marginaleffects, MASS, parallel, reshape2, rmarkdown, stdReg2,
+        testthat (>= 3.0.0)
 Config/testthat/edition: 3
 RdMacros: Rdpack
 URL: https://StatisticsHealthEconomics.github.io/outstandR/
 BugReports: https://github.com/StatisticsHealthEconomics/outstandR/issues/
 LazyData: false
 NeedsCompilation: no
-Packaged: 2025-12-09 17:25:05 UTC; n8than
+Packaged: 2026-01-08 15:18:05 UTC; n8than
 Author: Nathan Green [aut, cre, cph] (ORCID:
     <https://orcid.org/0000-0003-2745-1736>, ROR:
     <https://ror.org/02jx3x895>),

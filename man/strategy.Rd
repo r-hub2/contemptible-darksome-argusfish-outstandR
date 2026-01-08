@@ -74,7 +74,7 @@ Available distributions are given in stats::Distributions. See \code{\link[copul
 
 \item{N}{Synthetic sample size for g-computation}
 
-\item{strategy}{Class name from \code{strategy_maic}, \code{strategy_stc}, \code{strategy_gcomp_ml}, \code{strategy_gcomp_bayes}}
+\item{strategy}{Class name from \code{strategy_maic}, \code{strategy_stc}, \code{strategy_gcomp_ml}, \code{strategy_gcomp_bayes}, \code{strategy_mim}}
 
 \item{...}{Additional arguments}
 }
@@ -93,6 +93,11 @@ Strategy list object
 }
 \description{
 Create a type of strategy class for each modelling approach.
+}
+\note{
+While current implementations focus on binary, continuous, and count outcomes,
+support for survival data (using the \code{survival} package) is under active
+development and scheduled for version 1.1.0.
 }
 \section{Matching-adjusted indirect comparison (MAIC)}{
 

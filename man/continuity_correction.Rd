@@ -4,12 +4,14 @@
 \alias{continuity_correction}
 \title{Continuity Correction}
 \usage{
-continuity_correction(ald, correction = 0.5)
+continuity_correction(ald, correction = 0.5, verbatim = FALSE)
 }
 \arguments{
 \item{ald}{Aggregate level data. Data frame in long format.}
 
 \item{correction}{Continuity correction numeric size. Default to 0.5.}
+
+\item{verbatim}{Print messages, logical}
 }
 \value{
 Corrected aggregate level data frame.
